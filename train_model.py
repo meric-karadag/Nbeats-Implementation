@@ -65,6 +65,7 @@ optimizer = optim.Adam(model.parameters(), lr=learning_rate)
 best_val_loss = float('inf')
 patience_counter = 0
 
+wandb.watch(model, log='all')
 # Training loop
 for epoch in range(num_epochs):
     model.train()
@@ -134,4 +135,5 @@ for epoch in range(num_epochs):
             print("Early stopping triggered")
             break
 
+wandb.finish()
 print("Training complete")
