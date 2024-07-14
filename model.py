@@ -44,3 +44,9 @@ class NBEATS(nn.Module):
             x = x - backcast_part
             forecast += forecast_part
         return forecast
+
+    def init_weights(self):
+        for m in self.modules():
+            if isinstance(m, nn.Linear):
+                nn.init.kaiming_normal_(m.weight)
+                nn.init.constant_(m.bias, 0)
