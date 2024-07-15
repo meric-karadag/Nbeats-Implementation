@@ -72,6 +72,7 @@ for epoch in range(num_epochs):
     running_train_loss = 0.0
     running_train_r2 = 0.0
     running_train_r2_0 = 0.0
+    curr_samples = 0
     progress_bar = tqdm(train_dataloader, desc=f"Epoch {epoch+1}/{num_epochs}")
 
     for batch_x, batch_y in progress_bar:
@@ -87,8 +88,9 @@ for epoch in range(num_epochs):
         running_train_loss += loss.item() * batch_x.size(0)
         running_train_r2 += r2Score(outputs, batch_y) * batch_x.size(0)
         running_train_r2_0 += r2Score0(outputs, batch_y) * batch_x.size(0)
-        
-        progress_bar.set_postfix(loss=running_train_loss / len(train_dataloader.dataset), r2=running_train_r2 / len(train_dataloader.dataset))
+        curr_samples += batch_x.size(0)
+
+        progress_bar.set_postfix(loss=running_train_loss / curr_samples, r2=running_train_r2 / curr_samples)
     
     epoch_train_loss = running_train_loss / len(train_dataloader.dataset)
     epoch_train_r2 = running_train_r2 / len(train_dataloader.dataset)
@@ -119,7 +121,7 @@ for epoch in range(num_epochs):
         'Loss/val': epoch_val_loss,
         'R2/val': epoch_val_r2,
         'R2/val': epoch_val_r2_0
-    }, step=epoch)
+    })
     
     print(f"Epoch {epoch+1}/{num_epochs}, Train Loss: {epoch_train_loss:.4f}, Train R²: {epoch_train_r2:.4f}, Val Loss: {epoch_val_loss:.4f}, Val R²: {epoch_val_r2:.4f}")
     
