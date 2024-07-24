@@ -4,12 +4,13 @@ import torch.nn.functional as F
 
 
 class NBEATSBlock(nn.Module):
-    def __init__(self, input_size, hidden_size, output_size, num_layers):
+    def __init__(self, input_size, hidden_size, output_size, num_layers, dropout=0.0):
         super(NBEATSBlock, self).__init__()
-        self.fc_stack = nn.ModuleList(
-            [nn.Linear(input_size, hidden_size)]
-            + [nn.Linear(hidden_size, hidden_size) for _ in range(num_layers - 1)]
-        )
+        self.fc_stack = [nn.Linear(input_size, hidden_size), nn.Dropout(dropout)]
+        for _ in range(num_layers - 1):
+            self.fc_stack.append(nn.Linear(hidden_size, hidden_size))
+            self.fc_stack.append(nn.Dropout(dropout))
+        self.fc_stack = nn.ModuleList(self.fc_stack)
         self.backcast_fc = nn.Linear(hidden_size, input_size)
         self.forecast_fc = nn.Linear(hidden_size, output_size)
 
@@ -22,14 +23,14 @@ class NBEATSBlock(nn.Module):
 
 
 class NBEATS(nn.Module):
-    def __init__(self, input_size, hidden_size, output_size, num_layers, num_blocks):
+    def __init__(self, input_size, hidden_size, output_size, num_layers, num_blocks, dropout=0.0):
         super(NBEATS, self).__init__()
         self.output_size = output_size
         self.input_size = input_size
         self.hidden_size = hidden_size
         self.blocks = nn.ModuleList(
             [
-                NBEATSBlock(input_size, hidden_size, output_size, num_layers)
+                NBEATSBlock(input_size, hidden_size, output_size, num_layers, dropout=dropout)
                 for _ in range(num_blocks)
             ]
         )
